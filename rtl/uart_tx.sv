@@ -11,7 +11,7 @@ output logic tx_done
 );
 
 localparam int CLKS_PER_BIT = CLK_FREQ / BAUD_RATE;
-localparam int CTR_WIDTH    = $clog2(CLKS_PER_BIT);
+localparam int CTR_WIDTH = $clog2(CLKS_PER_BIT);
 
 logic baud_tick;
 logic [7:0] tx_data_latch;
@@ -43,23 +43,29 @@ if(!rst_n || current_state == IDLE) begin
 baud_counter <= '0;
 baud_tick <= '0;
 end
+
 else begin
 if(baud_counter == CLKS_PER_BIT - 1) begin
 baud_counter <= '0;
 baud_tick <= 1'b1;
 end
+
 else begin
 baud_counter <= baud_counter + 1'b1;
 baud_tick <= 1'b0;
 end
+
 end
 end
 
 always_ff @(posedge clk or negedge rst_n) begin
+
 if (!rst_n) begin
 tx_data_latch <= '0;
 bit_idx <= '0;
-end else begin
+end 
+
+else begin
 if (current_state == IDLE && tx_start) begin
 tx_data_latch <= tx_data;
 bit_idx <= '0;
