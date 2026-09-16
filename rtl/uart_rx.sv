@@ -27,15 +27,19 @@ STOP = 2'b11
 state_t current_state, next_state;
 
 logic rx_sync_0, rx_sync_1;
+
 always_ff @(posedge clk or negedge rst_n) begin
+
 if(!rst_n) begin
 rx_sync_0 <= 1'b1;
 rx_sync_1 <= 1'b0;
 end
+
 else begin
 rx_sync_0 <= rx_in;
 rx_sync_1 <= rx_sync_0;
 end
+
 end
 
 always_ff @(posedge clk or negedge rst_n) begin
@@ -115,56 +119,48 @@ always_comb begin
 case (current_state)
 
 IDLE: begin
-if(!rx_in) begin
+if(!rx_sync_1) begin
 next_state = START;
 end
 end
 
 START: begin
-if(!rx_in && os_tick_count == 4'd7) begin
+if(oversample_tick && os_tick_count == 4'd7) begin
+if(!rx_sync_1) begin
 next_state = DATA;
+end
+else begin
+next_state = IDLE;
+end
 end
 end
 
 DATA: begin
-if(bit_idx == 3'd7 && os_tick_count == 4'd15) begin
+if(oversample_tick && bit_idx == 3'd7 && os_tick_count == 4'd15) begin
 next_state = STOP;
 end
 end
 
 STOP: begin
-if(os_tick_count == 4'd15) begin
+if( oversample_tick && os_tick_count == 4'd15) begin
 next_state = IDLE;
 end
 end
 
-default: ;
+default: next_state = IDLE;
 endcase
 
 always_comb begin
 rx_ready = '0;
 rx_error = '0;
 
-case(current_state)
-
-DATA: begin
-if(bit_idx != 3'd7 && os_tick_count == 4'd15) begin
-rx_data[bit_idx] = rx_in;
-end
-
-STOP: begin
-if(os_tick_count == 4'd15) begin
-if(rx_in) begin
+if(current_state == STOP && oversample_tick && os_tick_count == 4'd15) begin
+if(rx_sync_1) begin
 rx_ready = 1'b1;
-end
-else if(!rx_in) begin
+end 
+else begin
 rx_error = 1'b1;
 end
-end
-end
-
-default: ;
-endcase
 end
 
 endmodule
