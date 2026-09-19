@@ -4,7 +4,7 @@ package uart_rx_tb_pkg;
 
 parameter int CLK_FREQ = 100000000;
 parameter int BAUD_RATE = 115200;
-parameter int OVERSAMPLE = 16
+parameter int OVERSAMPLE = 16;
 
 endpackage
 

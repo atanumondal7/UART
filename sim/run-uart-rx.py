@@ -25,14 +25,14 @@ def run_simulation():
     compile_cmd = [
         "vlog",
         "-sv",
-        "uart_tx.sv",
-        "uart_tx_tb.sv"
+        "uart_rx.sv",
+        "uart_rx_tb.sv"
     ]
     run_cmd(compile_cmd)
     
     tcl_commands = (
         "vcd file waves.vcd; "
-        "vcd add -r /uart_tx_tb/*; "
+        "vcd add -r /uart_rx_tb/*; "
         "onbreak {resume}; "
         "onElabError {resume}; "
         "set NoQuitOnFinish 1; "
@@ -43,7 +43,7 @@ def run_simulation():
     vsim_cmd = [
         "vsim",
         "-c",
-        "work.uart_tx_tb",
+        "work.uart_rx_tb",
         "-l",
         temp_transcript_path,
         "-sv_seed",
