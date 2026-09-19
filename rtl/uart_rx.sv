@@ -32,7 +32,7 @@ always_ff @(posedge clk or negedge rst_n) begin
 
 if(!rst_n) begin
 rx_sync_0 <= 1'b1;
-rx_sync_1 <= 1'b0;
+rx_sync_1 <= 1'b1;
 end
 
 else begin
@@ -44,16 +44,19 @@ end
 
 always_ff @(posedge clk or negedge rst_n) begin
 
-if(!rst_n || current_state == IDLE) begin
+if(!rst_n) begin
 oversample_counter <= '0;
-oversample_tick <= '0;
+oversample_tick    <= 1'b0;
+end
+else if(current_state == IDLE) begin
+oversample_counter <= '0;
+oversample_tick    <= 1'b0;
 end
 else begin
 
 if(oversample_counter == CLKS_PER_SAMPLE - 1) begin
 oversample_counter <= '0;
 oversample_tick <= 1'b1;
-os_tick_count <= os_tick_count + 1'b1;
 end
 else begin
 oversample_counter <= oversample_counter + 1'b1;
@@ -64,7 +67,13 @@ end
 end
 
 always_ff @(posedge clk or negedge rst_n) begin
-if(!rst_n || current_state == IDLE) begin
+if(!rst_n) begin
+os_tick_count <= '0;
+end
+else if(current_state == IDLE) begin
+os_tick_count <= '0;
+end
+else if(current_state == START && next_state == DATA) begin
 os_tick_count <= '0;
 end
 else if(oversample_tick) begin
@@ -93,16 +102,14 @@ bit_idx <= bit_idx + 1'b1;
 end
 end
 
-if(current_state == STOP && oversample_tick && os_tick_count == 4'15 && rx_sync_1) begin
+if(current_state == STOP && oversample_tick && os_tick_count == 4'd15 && rx_sync_1) begin
 rx_data <= rx_shift_reg;
 end
 end
 
 end
 
-end
-
-always_ff @(posedge clk) begin
+always_ff @(posedge clk or negedge rst_n) begin
 
 if(!rst_n) begin
 current_state <= IDLE;
@@ -115,6 +122,8 @@ end
 end
 
 always_comb begin
+
+next_state = current_state;
 
 case (current_state)
 
@@ -149,17 +158,19 @@ end
 
 default: next_state = IDLE;
 endcase
+end
 
-always_comb begin
-rx_ready = '0;
-rx_error = '0;
-
+always_ff @(posedge clk or negedge rst_n) begin
+if(!rst_n) begin
+rx_ready <= 1'b0;
+rx_error <= 1'b0;
+end else begin
+rx_ready <= 1'b0;
+rx_error <= 1'b0;
 if(current_state == STOP && oversample_tick && os_tick_count == 4'd15) begin
-if(rx_sync_1) begin
-rx_ready = 1'b1;
-end 
-else begin
-rx_error = 1'b1;
+rx_ready <= rx_sync_1;
+rx_error <= ~rx_sync_1;
+end
 end
 end
 
