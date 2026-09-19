@@ -25,8 +25,8 @@ def run_simulation():
     compile_cmd = [
         "vlog",
         "-sv",
-        "uart_rx.sv",
-        "uart_rx_tb.sv"
+        "-f",
+        "files_rx.f"
     ]
     run_cmd(compile_cmd)
     
