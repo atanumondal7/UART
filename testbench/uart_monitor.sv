@@ -31,16 +31,16 @@ forever begin
 @(vif.cb);
 if(kind == MON_TX) begin
 if (vif.cb.tx_start && !vif.cb.tx_busy) begin
-item = uart_item::type_id::create("item", this);
-item.tx_data = vif.cb.tx_data;
+item = uart_item::type_id::create("item");
+item.data = vif.cb.tx_data;
 item_collected_port.write(item);
 end
 end
 else begin
 if(vif.cb.rx_ready || vif.cb.rx_error) begin
-item = uart_item::type_id::create("item", this);
-item.rx_data = vif.cb.rx_data;
-item.rx_error = vif.cb.rx_error;
+item = uart_item::type_id::create("item");
+item.data = vif.cb.rx_data;
+item.error = vif.cb.rx_error;
 item_collected_port.write(item);
 end
 end
