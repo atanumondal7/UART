@@ -38,7 +38,7 @@ The driver pulses `tx_start` with `tx_data`, and the TX serializes it into the R
 UVM_INFO ... [SB] PASS=<n> FAIL=0
 ```
 
-![Waveform](docs/waveform.png)
+![Waveform](docs/waveform.jpg)
 
 ## Bugs I ran into
 
