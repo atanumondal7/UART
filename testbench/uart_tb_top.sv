@@ -1,19 +1,16 @@
 `timescale 1ns/1ps
 
-`ifndef UART_TOP_SV
-`define UART_TOP_SV
-
 import uvm_pkg::*;
 import uart_pkg::*;
 `include "uvm_macros.svh"
 
 module uart_tb_top;
 
-uart_if vif(clk);
-
 logic clk = 0;
 
 always #5 clk = ~clk;
+
+uart_if vif(clk);
 
 assign vif.rx_in = vif.tx_out;
 
@@ -42,5 +39,3 @@ run_test("uart_test");
 end
 
 endmodule 
-
-`endif

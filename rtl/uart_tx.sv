@@ -15,7 +15,7 @@ localparam int CTR_WIDTH = $clog2(CLKS_PER_BIT);
 
 logic baud_tick;
 logic [7:0] tx_data_latch;
-logic [2:0] bit_idx = '0;
+logic [2:0] bit_idx;
 logic [CTR_WIDTH-1:0] baud_counter;
 
 typedef enum logic [1:0] {
@@ -37,9 +37,14 @@ current_state <= next_state;
 
 end
 
-always_ff @(posedge clk) begin
+always_ff @(posedge clk or negedge rst_n) begin
 
 if(!rst_n || current_state == IDLE) begin
+baud_counter <= '0;
+baud_tick <= '0;
+end
+
+else if(current_state == IDLE) begin
 baud_counter <= '0;
 baud_tick <= '0;
 end
@@ -76,6 +81,8 @@ end
 end
 
 always_comb begin
+
+next_state = current_state;
 
 case(current_state)
 

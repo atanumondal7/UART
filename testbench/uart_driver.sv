@@ -18,13 +18,14 @@ end
 endfunction
 
 task drive_item(uart_item item);
-while(vif.drv_cb.tx_busy) @(vif.cb);
-
-@(vif.cb);
-vif.drv_cb.tx_data <= item.data;
+@(vif.drv_cb);
+while (vif.drv_cb.tx_busy !== 1'b0) @(vif.drv_cb);
+vif.drv_cb.tx_data  <= item.data;
 vif.drv_cb.tx_start <= 1'b1;
-@(vif.cb);
+@(vif.drv_cb);
 vif.drv_cb.tx_start <= 1'b0;
+while (vif.drv_cb.tx_busy !== 1'b1) @(vif.drv_cb);
+while (vif.drv_cb.tx_busy !== 1'b0) @(vif.drv_cb);
 endtask
 
 task run_phase(uvm_phase phase);
@@ -34,7 +35,6 @@ vif.drv_cb.tx_start <= 1'b0;
 vif.drv_cb.tx_data <= '0;
 
 wait(vif.rst_n === 1);
-
 forever begin
 seq_item_port.get_next_item(item);
 drive_item(item);

@@ -26,7 +26,7 @@ endfunction
 
 task run_phase(uvm_phase phase);
 uart_item item;
-wait (vif.mon_cb.rst_n === 1);
+wait (vif.rst_n === 1);
 forever begin
 @(vif.mon_cb);
 if(kind == MON_TX) begin

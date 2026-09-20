@@ -11,7 +11,7 @@ class uart_scoreboard extends uvm_scoreboard;
 uvm_analysis_imp_exp #(uart_item, uart_scoreboard) exp_imp;
 uvm_analysis_imp_act #(uart_item, uart_scoreboard) act_imp;
 
-uart_item exp_q[];
+uart_item exp_q[$];
 int pass_count, fail_count;
 
 function new(string name, uvm_component parent);
@@ -52,7 +52,7 @@ endfunction
 function void check_phase(uvm_phase phase);
 super.check_phase(phase);
 if(exp_q.size() != 0) begin
-`uvm_error("SB", $sformatf("%0d expected items were never received". exp_q.size()))
+`uvm_error("SB", $sformatf("%0d expected items were never received", exp_q.size()))
 fail_count++;
 end
 endfunction
