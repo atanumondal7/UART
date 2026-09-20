@@ -26,21 +26,21 @@ endfunction
 
 task run_phase(uvm_phase phase);
 uart_item item;
-wait (vif.cb.rst_n === 1);
+wait (vif.mon_cb.rst_n === 1);
 forever begin
-@(vif.cb);
+@(vif.mon_cb);
 if(kind == MON_TX) begin
-if (vif.cb.tx_start && !vif.cb.tx_busy) begin
+if (vif.mon_cb.tx_start && !vif.mon_cb.tx_busy) begin
 item = uart_item::type_id::create("item");
-item.data = vif.cb.tx_data;
+item.data = vif.mon_cb.tx_data;
 item_collected_port.write(item);
 end
 end
 else begin
-if(vif.cb.rx_ready || vif.cb.rx_error) begin
+if(vif.mon_cb.rx_ready || vif.mon_cb.rx_error) begin
 item = uart_item::type_id::create("item");
-item.data = vif.cb.rx_data;
-item.error = vif.cb.rx_error;
+item.data = vif.mon_cb.rx_data;
+item.error = vif.mon_cb.rx_error;
 item_collected_port.write(item);
 end
 end

@@ -18,20 +18,20 @@ end
 endfunction
 
 task drive_item(uart_item item);
-while(vif.cb.tx_busy) @(vif.cb);
+while(vif.drv_cb.tx_busy) @(vif.cb);
 
 @(vif.cb);
-vif.cb.tx_data <= item.data;
-vif.cb.tx_start <= 1'b1;
+vif.drv_cb.tx_data <= item.data;
+vif.drv_cb.tx_start <= 1'b1;
 @(vif.cb);
-vif.cb.tx_start <= 1'b0;
+vif.drv_cb.tx_start <= 1'b0;
 endtask
 
 task run_phase(uvm_phase phase);
 uart_item item;
 
-vif.cb.tx_start <= 1'b0;
-vif.cb.tx_data <= '0;
+vif.drv_cb.tx_start <= 1'b0;
+vif.drv_cb.tx_data <= '0;
 
 wait(vif.rst_n === 1);
 

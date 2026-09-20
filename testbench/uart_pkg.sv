@@ -3,6 +3,9 @@
 `ifndef UART_PACKAGE_SV
 `define UART_PACKAGE_SV
 
+import uvm_pkg::*;
+`include "uvm_macros.svh"
+
 package uart_pkg;
 
 parameter int CLK_FREQ = 100000000;
