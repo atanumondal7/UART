@@ -2,15 +2,15 @@
 
 A UART transmitter and receiver in SystemVerilog (8N1, 115200 baud, 100 MHz clock, parameterized), with a 16x-oversampling receiver, verified in loopback (TX wired to RX) with a UVM environment: driver, sequencer, two monitors, a scoreboard with a reference model, and hand-coded coverage.
 
-The Questa edition I use doesn't support `randomize()` or `covergroup`, so stimulus comes from `$urandom_range` and coverage is tracked with plain counters and bins in a `uvm_subscriber`. It's more manual than the standard flow, but it made me decide what "covered" means for a UART data path instead of letting a covergroup decide.
+The Questa starter edition I use doesn't support `randomize()` or `covergroup`, so stimulus comes from `$urandom_range` and coverage is tracked with plain counters and bins in a `uvm_subscriber`. It's more manual than the standard flow, but it made me decide what "covered" means for a UART data path instead of letting a covergroup decide.
 
 ## Design
 
-**TX.** A four-state FSM (IDLE, START, DATA, STOP). `tx_start` latches `tx_data`, and the frame goes out LSB first: one start bit, eight data bits, one stop bit. `tx_busy` is decoded from the state, so it rises one clock after `tx_start` and falls when the stop bit ends.
+**TX.** A four-state FSM (IDLE, START, DATA, STOP). `tx_start` latches `tx_data`, and the frame goes out LSB first: one start bit, eight data bits, one stop bit, each lasting `CLK_FREQ / BAUD_RATE` clocks. `tx_busy` is decoded from the state, so it rises one clock after `tx_start` and falls when the stop bit ends.
 
-**RX.** The input goes through a 2-FF synchronizer. After the falling edge of the start bit, an oversample counter ticks every 54 clocks (16 ticks per bit). The start bit is re-checked at tick 7 (mid-bit) to reject glitches, then each data bit is sampled 16 ticks apart, so every sample lands at bit centre. The stop bit is checked at its centre: high produces a one-cycle `rx_ready` and updates `rx_data`, low produces a one-cycle `rx_error` and leaves `rx_data` untouched.
+**RX.** The input goes through a 2-FF synchronizer. When the line falls, an oversample counter starts and ticks every `CLK_FREQ / (BAUD_RATE x OVERSAMPLE)` clocks (54 with the defaults), 16 ticks per bit. The start bit is re-checked at tick 7 (mid-bit) to reject glitches. On entering DATA the tick count is cleared, so each data bit is sampled 16 ticks later, at its centre, and every following bit stays 16 ticks apart. The stop bit is checked at its centre: high produces a one-cycle `rx_ready` and updates `rx_data`, low produces a one-cycle `rx_error` and leaves `rx_data` untouched. Because the RX reports mid-stop-bit, `rx_ready` arrives about half a bit before the TX's `tx_busy` falls.
 
-**Baud error.** 100 MHz / (115200 x 16) = 54.25, truncated to 54, so the receiver runs about 0.5% fast relative to nominal. UART tolerates a few percent, so this is fine, but it's a real approximation and I kept it on purpose rather than adding a fractional divider.
+**Baud error.** 100 MHz / (115200 x 16) = 54.25, truncated to 54. The RX therefore times a bit as 864 clocks while the TX sends it in 868, about 0.46% off. Over a 10-bit frame the sample point drifts roughly 4 clocks against a margin of about 430, so this is harmless, and I kept the integer divider rather than adding a fractional one.
 
 ## Architecture
 
@@ -34,8 +34,16 @@ The driver pulses `tx_start` with `tx_data`, and the TX serializes it into the R
 ## Result
 
 ```
-[paste your final scoreboard and coverage output here]
-UVM_INFO ... [SB] PASS=<n> FAIL=0
+UVM_INFO ... [COV] ---- Coverage Report ----
+UVM_INFO ... [COV] Data Cover:     Covered
+UVM_INFO ... [COV] Corner Values: 6/6
+UVM_INFO ... [COV] Error: Not Found
+UVM_INFO ... [COV] Total Coverage: 100.00%
+UVM_INFO ... [SB] PASS=1000  FAIL=0
+
+UVM_ERROR : 0    UVM_FATAL : 0
+
+Error coverage is not reachable in loopback (the TX only sends clean frames).
 ```
 
 ![Waveform](docs/waveform.jpg)
@@ -54,28 +62,32 @@ UVM_INFO ... [SB] PASS=<n> FAIL=0
 
 A frame at 115200 baud is about 87 us of simulated time, so 106 transactions took over two minutes: roughly a million clock cycles. That's inherent to a serial protocol, not a testbench problem. For quick iteration I scale `BAUD_RATE` up in `uart_tb_top` and keep one run at 115200 for sign-off.
 
-## Limits and next steps
-
-Loopback can't produce framing errors, false start bits, or baud mismatch, because the TX always sends clean frames. I checked those with a plain directed testbench that drives `rx_in` directly ([`directed_tb/`](directed_tb/)), not in the UVM environment.
-
-Next I'd add a direct-drive agent so the error cases run under UVM too, and a back-to-back stress sequence with no idle gap between frames.
-
 ## File hierarchy
+
+### RTL
 
 | File | Role |
 |---|---|
-| [`uart_tx.sv`](rtl/uart_tx.sv) | RTL: FSM transmitter, 8N1 |
-| [`uart_rx.sv`](rtl/uart_rx.sv) | RTL: 16x-oversampling receiver with 2-FF synchronizer |
-| [`uart_top.sv`](rtl/uart_top.sv) | Wraps TX and RX |
-| [`uart_if.sv`](testbench/uart_if.sv) | Interface with separate driver and monitor clocking blocks |
-| [`uart_item.sv`](testbench/uart_item.sv) | Transaction: data byte plus stimulus knobs |
-| [`uart_sequence.sv`](testbench/uart_sequence.sv) | Random data bytes, plus directed corner values |
-| [`uart_driver.sv`](testbench/uart_driver.sv) | Drives the TX handshake, waits for a full frame |
-| [`uart_monitor.sv`](testbench/uart_monitor.sv) | One class, TX or RX role set by config |
-| [`uart_scoreboard.sv`](testbench/uart_scoreboard.sv) | Reference model and queue-based checker |
-| [`uart_coverage.sv`](testbench/uart_coverage.sv) | Byte values, corner values, per-bit toggles |
-| [`uart_agent.sv`](testbench/uart_agent.sv) / [`uart_env.sv`](testbench/uart_env.sv) / [`uart_test.sv`](testbench/uart_test.sv) | UVM structure |
-| [`uart_pkg.sv`](testbench/uart_pkg.sv) / [`uart_tb_top.sv`](testbench/uart_tb_top.sv) | Package and top-level testbench |
+| [`uart_tx.sv`](rtl/uart_tx.sv) | Transmitter. Four-state FSM (IDLE, START, DATA, STOP) sending 8N1 frames, LSB first. `tx_start` latches `tx_data`, and one bit lasts `CLK_FREQ / BAUD_RATE` clocks. `tx_busy` is decoded from the state, so it rises one clock *after* `tx_start` and falls when the stop bit ends. |
+| [`uart_rx.sv`](rtl/uart_rx.sv) | Receiver. Input goes through a 2-FF synchronizer, then a 16x oversample counter times the frame from the start-bit edge. The start bit is re-checked at mid-bit to reject glitches, data is sampled at each bit centre, and the stop bit is checked before `rx_ready` (valid frame) or `rx_error` (stop bit low) pulses for one cycle. `rx_data` only updates on a valid frame. |
+| [`uart_top.sv`](rtl/uart_top.sv) | Wrapper that instantiates the TX and RX with shared clock, reset and parameters. TX and RX are independent here; the loopback wire from `tx_out` to `rx_in` is made in the testbench top, not in the RTL. |
+
+### Testbench
+
+| File | Role |
+|---|---|
+| [`uart_if.sv`](testbench/uart_if.sv) | Interface with two clocking blocks: `drv_cb` (drives `tx_data` and `tx_start`, reads `tx_busy`) and `mon_cb` (input-only, so a monitor can't accidentally drive the DUT). |
+| [`uart_item.sv`](testbench/uart_item.sv) | Transaction object. Holds the data byte and an `error` flag; `inject_error` and `bit_scale` are stimulus knobs for a direct-drive mode and are unused in loopback. |
+| [`uart_sequence.sv`](testbench/uart_sequence.sv) | Generates transactions with `$urandom_range` (no `randomize()` in my licence), with an option to send the directed corner values `0x00`, `0xFF`, `0x55`, `0xAA`, `0x01`, `0x80` first. |
+| [`uart_driver.sv`](testbench/uart_driver.sv) | Turns an item into the TX handshake: waits for `tx_busy` low, pulses `tx_start` with `tx_data`, then waits for busy to rise and fall so each item covers a full frame. Waiting for the rise is what fixed an early bug where the driver returned after 15 ns. |
+| [`uart_monitor.sv`](testbench/uart_monitor.sv) | One class used twice, with the role set through `config_db`. As a TX monitor it records a byte when `tx_start` is seen with `tx_busy` low; as an RX monitor it records one when `rx_ready` or `rx_error` fires. It emits one item per byte, not per clock. |
+| [`uart_scoreboard.sv`](testbench/uart_scoreboard.sv) | Reference model and checker. The model is the transaction-level identity (bytes in equal bytes out, in order): TX-monitor items go into an expected queue, RX-monitor items are compared against its front, and anything left in the queue at the end is reported as lost data. |
+| [`uart_coverage.sv`](testbench/uart_coverage.sv) | Hand-coded coverage in a `uvm_subscriber` on the RX monitor, since `covergroup` isn't available. Tracks byte values seen, the six corner values, per-bit 0 and 1 toggles, and the error flag, and prints a report at the end of the run. |
+| [`uart_agent.sv`](testbench/uart_agent.sv) | Bundles the driver, sequencer and both monitors. |
+| [`uart_env.sv`](testbench/uart_env.sv) | Creates the agent, scoreboard and coverage collector, and connects both monitors to the scoreboard and the RX monitor to coverage. |
+| [`uart_test.sv`](testbench/uart_test.sv) | Starts the sequence and holds the objection open long enough (a drain delay after the last item) for the final byte to reach the RX monitor. |
+| [`uart_pkg.sv`](testbench/uart_pkg.sv) | Package that includes the testbench classes in dependency order. The interface is compiled separately, before the package. |
+| [`uart_tb_top.sv`](testbench/uart_tb_top.sv) | Top-level module: clock and reset generation, the DUT instance, the loopback `assign` from `tx_out` to `rx_in`, and the `config_db` call that hands the virtual interface to the testbench before `run_test`. |
 
 ## Compilation & Simulation
 
