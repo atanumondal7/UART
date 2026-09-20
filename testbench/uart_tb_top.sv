@@ -15,8 +15,10 @@ logic clk = 0;
 
 always #5 clk = ~clk;
 
+assign vif.rx_in = vif.tx_out;
+
 uart_top #(.CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE), .OVERSAMPLE(OVERSAMPLE)) dut (
-.clk(vif.clk),
+.clk(clk),
 .rst_n(vif.rst_n),
 .tx_data(vif.tx_data),
 .tx_start(vif.tx_start),
@@ -29,15 +31,14 @@ uart_top #(.CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE), .OVERSAMPLE(OVERSAMPLE)) 
 );
 
 initial begin
-
-uvm_config_db#(virtual uart_if)::set(null, "*", "vif", vif);
-
-run_test("uart_test");
-
 vif.rst_n = 0;
 #100;
 vif.rst_n = 1;
+end
 
+initial begin
+uvm_config_db#(virtual uart_if)::set(null, "*", "vif", vif);
+run_test("uart_test");
 end
 
 endmodule 
