@@ -14,7 +14,11 @@ The Questa edition I use doesn't support `randomize()` or `covergroup`, so stimu
 
 ## Architecture
 
-![UART UVM Testbench Architecture](docs/architecture.png)
+### RTL
+![UART UVM Testbench Architecture](docs/architecture_rtl.png)
+
+### Testbench
+![UART UVM Testbench Architecture](docs/architecture_tb.png)
 
 The driver pulses `tx_start` with `tx_data`, and the TX serializes it into the RX. One monitor class is instantiated twice: the TX monitor records each byte sent, and the RX monitor records each byte received. The scoreboard's reference model is the transaction-level identity (bytes in equal bytes out, in order); the TX monitor pushes expected bytes into a queue and the RX monitor's bytes are compared against the front of it. Anything left in the queue at the end is reported as lost data.
 
