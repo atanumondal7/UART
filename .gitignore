@@ -1,0 +1,10 @@
+work/
+transcript
+*.vcd
+*.wlf
+*.log
+*.tmp
+_current_run_transcript.tmp
+.DS_Store
+Thumbs.db
+modelsim.ini

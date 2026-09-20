@@ -7,7 +7,6 @@ import uvm_pkg::*;
 
 interface uart_if (input logic clk);
 
-logic clk;
 logic rst_n;
 
 logic [7:0] tx_data;
