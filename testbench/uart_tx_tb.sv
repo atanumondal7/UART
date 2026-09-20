@@ -36,7 +36,8 @@ initial begin
 $monitor("rst_n=%0b, tx_start=%0b, tx_data=%b, tx_out=%0b, tx_busy=%0b, tx_done=%0b", rst_n, tx_start, tx_data, tx_out, tx_busy, tx_done);
 
 rst_n = 0; #11;
-rst_n = 1; tx_start = 1; tx_data = 8'b01010101; #1600000;
+rst_n = 1; tx_start = 1; tx_data = 8'b01010101; #16000;
+tx_data = 8'b10101010; #20000;
 
 $finish;
 
