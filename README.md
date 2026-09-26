@@ -58,10 +58,6 @@ Error coverage is not reachable in loopback (the TX only sends clean frames).
 
 **4. My first UVM driver returned after 15 ns instead of ~87 us.** It checked `tx_busy` before the TX had raised it (busy rises one clock after `tx_start`), so it assumed the TX was idle and moved on to the next item. The fix was making the driver wait for `tx_busy` to rise, then fall, and treating `x` as "not idle".
 
-## Runtime
-
-A frame at 115200 baud is about 87 us of simulated time, so 106 transactions took over two minutes: roughly a million clock cycles. That's inherent to a serial protocol, not a testbench problem. For quick iteration I scale `BAUD_RATE` up in `uart_tb_top` and keep one run at 115200 for sign-off.
-
 ## File hierarchy
 
 ### RTL
