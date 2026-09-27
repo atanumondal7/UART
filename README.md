@@ -58,6 +58,8 @@ Error coverage is not reachable in loopback (the TX only sends clean frames).
 
 **4. My first UVM driver returned after 15 ns instead of ~87 us.** It checked `tx_busy` before the TX had raised it (busy rises one clock after `tx_start`), so it assumed the TX was idle and moved on to the next item. The fix was making the driver wait for `tx_busy` to rise, then fall, and treating `x` as "not idle".
 
+**5. `tx_start` went high before start bit arrived.** On the first couple trials, `tx_start` was going high before any data was even sent. The bug was in the FSM state where I assigned `tx_start` inside an `always_comb` block which made it out of sync of the baud counter that was dependent on the clock.
+
 ## File hierarchy
 
 ### RTL
