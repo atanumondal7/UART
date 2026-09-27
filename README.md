@@ -52,7 +52,7 @@ Error coverage is not reachable in loopback (the TX only sends clean frames).
 
 ## Bugs I ran into
 
-**1. `rx_error` had the wrong polarity.** `rx_ready` and `rx_error` were both driven from `rx_sync_1`, so every good frame raised both flags and a bad frame raised neither. Fix: `rx_error <= ~rx_sync_1`.
+**1. `rx_error` had the wrong polarity.** `rx_ready` and `rx_error` were both driven from `rx_sync_1`, so every proper frame raised both flags and a bad frame raised neither. Fix: `rx_error <= ~rx_sync_1`.
 
 **2. The RX sampled the first data bit at the wrong point.** `os_tick_count` kept free-running through START, so the first data bit was sampled at the *end* of the bit instead of the middle. Clearing the tick counter on the START-to-DATA transition put every sample at bit centre.
 
