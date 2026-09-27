@@ -33,6 +33,8 @@ The driver pulses `tx_start` with `tx_data`, and the TX serializes it into the R
 
 ## Result
 
+**1000/1000 transactions passed — 0 failures, 100% coverage**
+
 ```
 UVM_INFO ... [COV] ---- Coverage Report ----
 UVM_INFO ... [COV] Data Cover:     Covered
@@ -46,7 +48,7 @@ UVM_ERROR : 0    UVM_FATAL : 0
 Error coverage is not reachable in loopback (the TX only sends clean frames).
 ```
 
-![Waveform](docs/waveform.jpg)
+![Waveform](docs/uart_waveform.gif)
 
 ## Bugs I ran into
 
