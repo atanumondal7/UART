@@ -39,7 +39,7 @@ end
 
 always_ff @(posedge clk or negedge rst_n) begin
 
-if(!rst_n || current_state == IDLE) begin
+if(!rst_n) begin
 baud_counter <= '0;
 baud_tick <= '0;
 end
