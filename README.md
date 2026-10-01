@@ -10,7 +10,7 @@ The Questa starter edition I use doesn't support `randomize()` or `covergroup`, 
 
 **RX.** The input goes through a 2-FF synchronizer. When the line falls, an oversample counter starts and ticks every `CLK_FREQ / (BAUD_RATE x OVERSAMPLE)` clocks (54 with the defaults), 16 ticks per bit. The start bit is re-checked at tick 7 (mid-bit) to reject glitches. On entering DATA the tick count is cleared, so each data bit is sampled 16 ticks later, at its centre, and every following bit stays 16 ticks apart. The stop bit is checked at its centre: high produces a one-cycle `rx_ready` and updates `rx_data`, low produces a one-cycle `rx_error` and leaves `rx_data` untouched. Because the RX reports mid-stop-bit, `rx_ready` arrives about half a bit before the TX's `tx_busy` falls.
 
-**Baud error.** 100 MHz / (115200 x 16) = 54.25, truncated to 54. The RX therefore times a bit as 864 clocks while the TX sends it in 868, about 0.46% off. Over a 10-bit frame the sample point drifts roughly 4 clocks against a margin of about 430, so this is harmless, and I kept the integer divider rather than adding a fractional one.
+**Baud error.** 100 MHz / (115200 x 16) = 54.25, truncated to 54. The RX therefore times a bit as 864 clocks while the TX sends it in 868, about 0.46% off. That is a drift of about 4 clocks per bit, which accumulates over the frame to roughly 40 clocks by the stop bit. The margin is half a bit, about 430 clocks, so this is harmless, and I kept the integer divider rather than adding a fractional one, avoiding the complexity that comes with it.
 
 ## Architecture
 
@@ -33,7 +33,7 @@ The driver pulses `tx_start` with `tx_data`, and the TX serializes it into the R
 
 ## Result
 
-**1000/1000 transactions passed — 0 failures, 100% coverage**
+**1000/1000 transactions passed — 0 failures, 100% coverage (error bin excluded, unreachable in loopback)**
 
 ```
 UVM_INFO ... [COV] ---- Coverage Report ----
