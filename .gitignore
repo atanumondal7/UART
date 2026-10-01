@@ -8,3 +8,5 @@ _current_run_transcript.tmp
 .DS_Store
 Thumbs.db
 modelsim.ini
+*.tcl
+*.do
