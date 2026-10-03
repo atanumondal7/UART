@@ -4,6 +4,21 @@ A UART transmitter and receiver in SystemVerilog (8N1, 115200 baud, 100 MHz cloc
 
 The Questa starter edition I use doesn't support `randomize()` or `covergroup`, so stimulus comes from `$urandom_range` and coverage is tracked with plain counters and bins in a `uvm_subscriber`. It's more manual than the standard flow, but it made me decide what "covered" means for a UART data path instead of letting a covergroup decide.
 
+## Features In Progress
+
+- [ ] **Bit-bang stimulus mode (driver)**: The UVM driver can drive the RX pin
+      directly, bit by bit, instead of relying on the TX-to-RX loopback. This gives
+      full control over frame timing and content, and it is a prerequisite for
+      the error tests below.
+- [ ] **Framing-error injection**: A per-item `inject_error` field corrupts the
+      stop bit, so the testbench can check that the receiver flags a framing
+      error and recovers on the next valid frame.
+- [ ] **Baud-rate mismatch testing**: A per-item `bit_scale` field stretches or
+      shrinks the bit period to measure how much baud error the receiver
+      tolerates with 16x oversampling.
+
+*Loopback mode remains the default and is unaffected.*
+
 ## Design
 
 **TX.** A four-state FSM (IDLE, START, DATA, STOP). `tx_start` latches `tx_data`, and the frame goes out LSB first: one start bit, eight data bits, one stop bit, each lasting `CLK_FREQ / BAUD_RATE` clocks. `tx_busy` is decoded from the state, so it rises one clock after `tx_start` and falls when the stop bit ends.
