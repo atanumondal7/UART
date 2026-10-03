@@ -17,10 +17,15 @@ logic [7:0] rx_data;
 logic rx_ready;
 logic rx_error;
 
+logic rx_sel;
+logic rx_drv;
+
 clocking drv_cb @(posedge clk);
 default input #1step output #1;
 output tx_data;
 output tx_start;
+output rx_sel;
+output rx_drv;
 input  tx_busy;
 endclocking
 
