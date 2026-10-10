@@ -17,8 +17,8 @@ logic [7:0] rx_data;
 logic rx_ready;
 logic rx_error;
 
-logic rx_sel;
-logic rx_drv;
+logic rx_sel = 1'b0;
+logic rx_drv = 1'b1;
 
 clocking drv_cb @(posedge clk);
 default input #1step output #1;

@@ -14,11 +14,14 @@ endfunction
 
 function void build_phase(uvm_phase phase);
 super.build_phase(phase);
+exp_ap = new("exp_ap", this);
 if(!uvm_config_db#(virtual uart_if)::get(this, "", "vif", vif)) begin
 `uvm_fatal("DRV", "Could not find virtual interface handles")
 end
 void'(uvm_config_db#(bit)::get(this, "", "bit_bang_mode", bit_bang_mode));
 BIT_CLKS = CLK_FREQ / BAUD_RATE;
+
+`uvm_info("INFO", $sformatf("bit_bang_mode=%0b, BIT_CLKS=%0d", bit_bang_mode, BIT_CLKS), UVM_LOW)
 endfunction
 
 task drive_item_loopback(uart_item item);
@@ -39,12 +42,13 @@ endtask
 
 task drive_item_bitbang(uart_item item);
 int unsigned clks = (item.bit_scale > 0.0) ? int'(BIT_CLKS * item.bit_scale) : BIT_CLKS;
+exp_ap.write(item);
 
 send_bit(1'b0, clks);
 for(int i=0;i<8;i++)
 send_bit(item.data[i], clks);
 send_bit((item.inject_error) ? 1'b0 : 1'b1, clks);
-send_bit(1'b0, BIT_CLKS);
+send_bit(1'b1, BIT_CLKS);
 endtask 
 
 task run_phase(uvm_phase phase);
@@ -55,6 +59,7 @@ vif.drv_cb.tx_data <= '0;
 vif.drv_cb.rx_drv <= 1'b1;
 vif.drv_cb.rx_sel <= bit_bang_mode;
 
+@(vif.drv_cb);
 wait(vif.rst_n === 1);
 forever begin
 seq_item_port.get_next_item(item);

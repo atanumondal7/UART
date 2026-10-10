@@ -23,7 +23,7 @@ endfunction
 function uart_item predict(uart_item sent);
 uart_item exp = uart_item::type_id::create("exp");
 exp.data = sent.data;
-exp.error = 0;
+exp.error = sent.inject_error;
 return exp;
 endfunction
 

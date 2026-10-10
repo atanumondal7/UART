@@ -14,7 +14,7 @@ endfunction
 function void build_phase(uvm_phase phase);
 super.build_phase(phase);
 env = uart_env::type_id::create("env", this);
-uvm_config_db#(bit)::set(this, "env.agent.driver", "bit_bang_mode", 0);
+uvm_config_db#(bit)::set(this, "env.agent.driver", "bit_bang_mode", 1);
 endfunction
 
 task run_phase(uvm_phase phase);
