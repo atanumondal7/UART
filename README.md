@@ -30,6 +30,7 @@ The driver pulses `tx_start` with `tx_data`, and the TX serializes it into the R
 | No lost or spurious bytes | Queue must be empty at the end; unexpected `rx_ready` is an error | UVM, loopback |
 | Corner data values | `0x00`, `0xFF`, `0x55`, `0xAA`, `0x01`, `0x80` in a directed sequence | UVM, loopback |
 | Every bit position | Per-bit 0 and 1 toggle bins | UVM, loopback |
+| Error check | Injects error to a transaction | UVM, bit_bang |
 
 ## Result
 
