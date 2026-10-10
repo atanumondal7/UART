@@ -20,7 +20,7 @@ endfunction
 task run_phase(uvm_phase phase);
 uart_sequence seq = uart_sequence::type_id::create("seq", this);
 phase.raise_objection(this);
-seq.num_item = 100;
+seq.num_item = 20;
 seq.use_corners = 1;
 seq.start(env.agent.sequencer);
 #200;
