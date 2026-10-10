@@ -41,13 +41,11 @@ The driver pulses `tx_start` with `tx_data`, and the TX serializes it into the R
 UVM_INFO ... [COV] ---- Coverage Report ----
 UVM_INFO ... [COV] Data Cover:     Covered
 UVM_INFO ... [COV] Corner Values: 6/6
-UVM_INFO ... [COV] Error: Not Found
+UVM_INFO ... [COV] Error: Found
 UVM_INFO ... [COV] Total Coverage: 100.00%
 UVM_INFO ... [SB] PASS=1000  FAIL=0
 
 UVM_ERROR : 0    UVM_FATAL : 0
-
-Error coverage is not reachable in loopback (the TX only sends clean frames).
 ```
 
 ![Waveform](docs/uart_waveform.gif)
