@@ -1,0 +1,22 @@
+# UVM_INFO ../testbench/uart_coverage.sv(54) @ 10216655000: uvm_test_top.env.coverage [COV] ---- Coverage Report ----
+# UVM_INFO ../testbench/uart_coverage.sv(55) @ 10216655000: uvm_test_top.env.coverage [COV] Data Cover:     Covered
+# UVM_INFO ../testbench/uart_coverage.sv(56) @ 10216655000: uvm_test_top.env.coverage [COV] Corner Values: 6/6
+# UVM_INFO ../testbench/uart_coverage.sv(57) @ 10216655000: uvm_test_top.env.coverage [COV] Error:     Found
+# UVM_INFO ../testbench/uart_coverage.sv(58) @ 10216655000: uvm_test_top.env.coverage [COV] Total Coverage: 100.00%
+# UVM_INFO ../testbench/uart_scoreboard.sv(62) @ 10216655000: uvm_test_top.env.scoreboard [SB] PASS=101  FAIL=7
+#
+# --- UVM Report Summary ---
+#
+# ** Report counts by severity
+# UVM_INFO :  111
+# UVM_WARNING :    0
+# UVM_ERROR :    7
+# UVM_FATAL :    0
+# ** Report counts by id
+# [COV]     5
+# [Questa UVM]     2
+# [RNTST]     1
+# [SB]   109
+# [TEST_DONE]     1
+# ** Note: $finish    : C:/altera/25.1std/questa_fse/win64/../verilog_src/uvm-1.1d/src/base/uvm_root.svh(430)
+#    Time: 10216655 ns  Iteration: 54  Instance: /uart_tb_top

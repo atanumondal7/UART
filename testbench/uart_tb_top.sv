@@ -12,7 +12,7 @@ always #5 clk = ~clk;
 
 uart_if vif(clk);
 
-assign vif.rx_in = vif.tx_out;
+assign vif.rx_in = vif.rx_sel ? vif.rx_drv : vif.tx_out;
 
 uart_top #(.CLK_FREQ(CLK_FREQ), .BAUD_RATE(BAUD_RATE), .OVERSAMPLE(OVERSAMPLE)) dut (
 .clk(clk),

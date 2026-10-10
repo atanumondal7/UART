@@ -22,6 +22,9 @@ endfunction
 
 function void connect_phase(uvm_phase phase);
 super.connect_phase(phase);
+if(agent.driver.bit_bang_mode)
+agent.driver.exp_ap.connect(scoreboard.exp_imp);
+else
 agent.tx_mon.item_collected_port.connect(scoreboard.exp_imp);
 agent.rx_mon.item_collected_port.connect(scoreboard.act_imp);
 agent.rx_mon.item_collected_port.connect(coverage.analysis_export);
