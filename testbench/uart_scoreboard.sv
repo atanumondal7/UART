@@ -39,7 +39,7 @@ fail_count++;
 return;
 end
 exp = exp_q.pop_front();
-if(act.error !== exp.error || act.data !== exp.data) begin
+if(act.error !== exp.error || (!exp.error && act.data !== exp.data)) begin
 `uvm_error("SB", $sformatf("MISMATCH exp=0x%02h/err=%0b act=0x%02h/err=%0b", exp.data, exp.error, act.data, act.error))
 fail_count++;
 end

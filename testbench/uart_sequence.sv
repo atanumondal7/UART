@@ -25,6 +25,13 @@ finish_item(item);
 end
 end
 
+item = uart_item::type_id::create("item");
+start_item(item);
+item.data = $urandom_range(0, 255);
+item.inject_error = 1;
+item.bit_scale = 1.0;
+finish_item(item);
+
 repeat(num_item) begin
 item = uart_item::type_id::create("item");
 start_item(item);

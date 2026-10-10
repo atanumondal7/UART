@@ -45,7 +45,7 @@ corners++;
 end
 end
 
-t_cover = corners + c_data;
+t_cover = corners + c_data + seen_error;
 endfunction
 
 function void report_phase(uvm_phase phase);
@@ -55,7 +55,7 @@ super.report_phase(phase);
 `uvm_info("COV", $sformatf("Data Cover: %s", (c_data) ? "Covered" : "Not Covered"), UVM_LOW)
 `uvm_info("COV", $sformatf("Corner Values: %0d/%0d", corners, 6), UVM_LOW)
 `uvm_info("COV", $sformatf("Error: %s", (seen_error) ? "Found" : "Not Found"), UVM_LOW)
-`uvm_info("COV", $sformatf("Total Coverage: %0.2f%%", (real'(t_cover)/7)*100), UVM_LOW)
+`uvm_info("COV", $sformatf("Total Coverage: %0.2f%%", (real'(t_cover)/8)*100), UVM_LOW)
 endfunction
 
 endclass

@@ -4,6 +4,8 @@
 class uart_driver extends uvm_driver #(uart_item);
 `uvm_component_utils(uart_driver)
 
+uvm_analysis_port #(uart_item) exp_ap;
+
 bit bit_bang_mode;
 int unsigned BIT_CLKS;
 virtual uart_if vif;
@@ -21,7 +23,6 @@ end
 void'(uvm_config_db#(bit)::get(this, "", "bit_bang_mode", bit_bang_mode));
 BIT_CLKS = CLK_FREQ / BAUD_RATE;
 
-`uvm_info("INFO", $sformatf("bit_bang_mode=%0b, BIT_CLKS=%0d", bit_bang_mode, BIT_CLKS), UVM_LOW)
 endfunction
 
 task drive_item_loopback(uart_item item);
