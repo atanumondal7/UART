@@ -36,7 +36,7 @@ item = uart_item::type_id::create("item");
 start_item(item);
 item.data = $urandom_range(0, 255);
 item.inject_error = 0;
-item.bit_scale = 0.95;
+item.bit_scale = 0.98;
 finish_item(item);
 
 repeat(num_item) begin
