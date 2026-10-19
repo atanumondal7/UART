@@ -66,6 +66,13 @@ property p_start_causes_busy;
 endproperty
 assert property (p_start_causes_busy)
   else $error("[SVA] tx_start did not cause tx_busy");
+  
+  property p_rx_error_fall;
+  @(posedge clk) disable iff (!rst_n)
+  $rose(rx_error) |-> (!rx_ready);
+  endproperty
+assert property (p_rx_error_fall)
+  else $error("[SVA] rx_ready high on rx_error");
 
 cover property (@(posedge clk) disable iff (!rst_n) $rose(tx_busy));
 cover property (@(posedge clk) disable iff (!rst_n) $fell(tx_busy) ##0 tx_out);
