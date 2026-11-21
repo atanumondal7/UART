@@ -18,7 +18,7 @@ The interface has two signals, `rx_sel` and `rx_drv`, that choose where the RX i
 
 **Loopback (default, `rx_sel = 0`).** The RX input is the TX output. The driver pulses `tx_start` and the TX serializes the byte into the RX. This checks the TX and RX against each other, but it can only produce frames the TX is willing to send: always valid, always at exactly the nominal baud rate.
 
-**Bit-bang (`rx_sel = 1`).** The RX input comes from `rx_drv`, which the driver controls directly through `drv_cb`. The driver builds each frame itself, one bit at a time, and holds each bit for a chosen number of clocks. This reaches waveforms the TX would never produce, which is what the next two features use.
+**Bit-bang (`rx_sel = 1`).** The RX input comes from `rx_drv`, which the driver controls directly through `drv_cb`. The driver builds each frame itself, one bit at a time, and holds each bit for a chosen number of clocks (decided by the baud rate). This reaches waveforms the TX would never produce, which is what the next two features use.
 
 **Error injection (`inject_error`).** When the flag is set on an item, the driver forces the stop bit low. The RX should answer with a one-cycle `rx_error`, no `rx_ready`, and `rx_data` left unchanged. This is the only way to reach the error path of the RX, since a loopback TX never sends a bad stop bit.
 
@@ -67,6 +67,8 @@ The assertions live in `uart_if.sv` and watch the TX side, so they run whenever 
 I also added `cover property` statements for the busy rise, the busy fall with the line high, and `tx_start` arriving while busy. An assertion that is never exercised proves nothing, so the covers show that each one actually fires in simulation.
 
 Data-bit correctness (right byte, LSB first) is not in the SVA. It is checked by the scoreboard, which compares the byte sent against the byte the RX reports.
+
+This assures correct start bit and stop bit checking while performing scoreboard and coverage analysis.
 
 ## Result
 
