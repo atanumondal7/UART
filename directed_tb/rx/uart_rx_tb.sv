@@ -14,7 +14,7 @@ module uart_rx_tb;
 
 localparam real BIT_PERIOD = 1.0e9 / 115200; 
 
-logic clk;
+logic clk = 1'b0;
 logic rst_n;
 logic rx_in;
 logic [7:0] rx_data;
