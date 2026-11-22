@@ -57,6 +57,15 @@ tx_start = 0;
 @(posedge tx_done);
 #1000;
 
+@(posedge clk);
+tx_data  = 8'h7C;
+tx_start = 1;
+@(posedge clk);
+tx_start = 0;
+
+@(posedge tx_done);
+#1000;
+
 $finish;
 end
 
