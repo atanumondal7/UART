@@ -20,15 +20,8 @@ exp_imp = new("exp_imp", this);
 act_imp = new("act_imp", this);
 endfunction
 
-function uart_item predict(uart_item sent);
-uart_item exp = uart_item::type_id::create("exp");
-exp.data = sent.data;
-exp.error = sent.inject_error;
-return exp;
-endfunction
-
 function void write_exp(uart_item t);
-exp_q.push_back(predict(t));
+exp_q.push_back(t);
 endfunction
 
 function void write_act(uart_item act);

@@ -6,6 +6,7 @@ class uart_env extends uvm_env;
 `uvm_component_utils(uart_env)
 
 uart_agent agent;
+uart_predictor predictor;
 uart_scoreboard scoreboard;
 uart_coverage coverage;
 
@@ -16,6 +17,7 @@ endfunction
 function void build_phase(uvm_phase phase);
 super.build_phase(phase);
 agent = uart_agent::type_id::create("agent", this);
+predictor = uart_predictor::type_id::create("predictor", this);
 scoreboard = uart_scoreboard::type_id::create("scoreboard", this);
 coverage = uart_coverage::type_id::create("coverage", this);
 endfunction
@@ -23,9 +25,10 @@ endfunction
 function void connect_phase(uvm_phase phase);
 super.connect_phase(phase);
 if(agent.driver.bit_bang_mode)
-agent.driver.exp_ap.connect(scoreboard.exp_imp);
+agent.driver.exp_ap.connect(predictor.analysis_export);
 else
-agent.tx_mon.item_collected_port.connect(scoreboard.exp_imp);
+agent.tx_mon.item_collected_port.connect(predictor.analysis_export);
+predictor.exp_port.connect(scoreboard.exp_imp);
 agent.rx_mon.item_collected_port.connect(scoreboard.act_imp);
 agent.rx_mon.item_collected_port.connect(coverage.analysis_export);
 endfunction

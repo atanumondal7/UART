@@ -18,6 +18,7 @@ parameter int OVERSAMPLE = 16;
 `include "uart_monitor.sv"
 `include "uart_scoreboard.sv"
 `include "uart_coverage.sv"
+`include "uart_predictor.sv"
 `include "uart_agent.sv"
 `include "uart_env.sv"
 `include "uart_test.sv"
